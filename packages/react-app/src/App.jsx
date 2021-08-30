@@ -378,6 +378,9 @@ function App(props) {
   const [downloading, setDownloading] = useState();
   const [ipfsContent, setIpfsContent] = useState();
 
+  const [summonerName, setSummonerName] = useState();
+  const [summonerContent, setSummonerContent] = useState();
+
   const [transferToAddresses, setTransferToAddresses] = useState({});
 
   const [loadedAssets, setLoadedAssets] = useState();
@@ -515,6 +518,16 @@ function App(props) {
               to="/ipfsdown"
             >
               IPFS Download
+            </Link>
+          </Menu.Item>
+          <Menu.Item key="/ConnectAccount">
+            <Link
+              onClick={() => {
+                setRoute("/ConnectAccount");
+              }}
+              to="/ConnectAccount"
+            >
+              Connect Account
             </Link>
           </Menu.Item>
           <Menu.Item key="/debugcontracts">
@@ -688,6 +701,42 @@ function App(props) {
               }}
             >
               Download from IPFS
+            </Button>
+
+            <pre style={{ padding: 16, width: 500, margin: "auto", paddingBottom: 150 }}>{ipfsContent}</pre>
+          </Route>
+          <Route path="/ConnectAccount">
+            <div style={{ paddingTop: 32, width: 740, margin: "auto" }}>
+              <Input
+                value={summonerName}
+                placeHolder="Enter your Summoner Name"
+                onChange={e => {
+                  setSummonerName(e.target.value);
+                }}
+              />
+            </div>
+            <Button
+              style={{ margin: 8 }}
+              loading={sending}
+              size="large"
+              shape="round"
+              type="primary"
+              onClick={async () => {
+                console.log("Requesting...", summonerName);
+                const result = await fetch(`https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-name/${summonerName}?api_key=RGAPI-0cd483ff-cccd-4cf7-b5ad-d069827286ab`)
+                // const result = await getFromIPFS(ipfsDownHash); // addToIPFS(JSON.stringify(yourJSON))
+                .then(result => result.json())
+                .then(function(result, err) {
+                if (result) {
+                  console.log(result.id)
+                } else {
+                  if (err){
+                  console.log('you dun goofeded! no ID!')
+                 }}   
+         })        
+}}
+            >
+              Get Code
             </Button>
 
             <pre style={{ padding: 16, width: 500, margin: "auto", paddingBottom: 150 }}>{ipfsContent}</pre>
