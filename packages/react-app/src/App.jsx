@@ -28,6 +28,9 @@ import {
   useUserProvider,
 } from "./hooks";
 
+/* var Puid = require('puid');
+var puid; */
+
 const { BufferList } = require("bl");
 // https://www.npmjs.com/package/ipfs-http-client
 const ipfsAPI = require("ipfs-http-client");
@@ -723,18 +726,24 @@ function App(props) {
               type="primary"
               onClick={async () => {
                 console.log("Requesting...", summonerName);
-                const result = await fetch(`https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-name/${summonerName}?api_key=RGAPI-0cd483ff-cccd-4cf7-b5ad-d069827286ab`)
-                // const result = await getFromIPFS(ipfsDownHash); // addToIPFS(JSON.stringify(yourJSON))
-                .then(result => result.json())
-                .then(function(result, err) {
-                if (result) {
-                  console.log(result.id)
+                const result = await fetch(`https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-name/${summonerName}?api_key=RGAPI-0cd483ff-cccd-4cf7-b5ad-d069827286ab`)                
+              .then((result) => {
+                if (result.status >= 200 && result.status <= 299) {
+                  return result.json();
                 } else {
-                  if (err){
-                  console.log('you dun goofeded! no ID!')
-                 }}   
-         })        
+                  throw Error(result.statusText);
+                }
+              })
+              .then((result) => {
+                let accountID = result.id;
+                /* puid = new Puid();
+                console.log(puid.generate()); */
+                console.log(result.id)
+              }).catch((error) => {              
+                console.log(error);
+              });       
 }}
+
             >
               Get Code
             </Button>

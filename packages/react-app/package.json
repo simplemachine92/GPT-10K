@@ -47,6 +47,7 @@
     "kayn": "^0.10.2",
     "node-watch": "^0.7.1",
     "postcss": "^8.2.6",
+    "puid": "^1.0.7",
     "qrcode.react": "^1.0.0",
     "react": "^16.14.0",
     "react-blockies": "^1.4.1",
