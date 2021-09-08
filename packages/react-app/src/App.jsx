@@ -28,8 +28,70 @@ import {
   useUserProvider,
 } from "./hooks";
 
-/* var Puid = require('puid');
-var puid; */
+const fs = require('fs');
+var path = require('path');
+var Canvas = require('canvas');
+
+const OpenAI = require('openai-api');
+
+const { createCanvas, loadImage } = require('canvas')
+//const canvas = createCanvas(200, 200)
+//const ctx = canvas.getContext('2d')
+
+// Load your key from an environment variable or secret management service
+// (do not include your key directly in your code)
+const MY_KEY = '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';
+
+const drawImage = async (gptInput, ...goodResponse) => {
+
+  const canvas = createCanvas(800, 600);
+  const ctx = canvas.getContext('2d');
+  //const stream = canvas.createPNGStream()
+  ctx.globalAlpha = 0.2
+
+      /* ctx.strokeRect(0, 0, 200, 200)
+      ctx.lineTo(0, 100)
+      ctx.lineTo(200, 100)
+      ctx.stroke()
+
+      ctx.beginPath()
+      ctx.lineTo(100, 0)
+      ctx.lineTo(100, 200)
+      ctx.stroke() */
+
+      ctx.globalAlpha = 1
+      ctx.font = 'normal 40px Impact, serif'
+
+      ctx.rotate(0)
+      ctx.translate(20, -40)
+
+      ctx.lineWidth = 1
+      ctx.strokeStyle = '#ddd'
+      ctx.strokeText(`${goodResponse}`, 300, 200)
+      ctx.strokeText(`${gptInput}`, 300, 100)
+
+      ctx.fillStyle = '#000'
+      ctx.fillText(`${goodResponse}`, 300, 200)
+      ctx.fillText(`${gptInput}`, 300, 100)
+
+      var m = ctx.measureText(`${goodResponse}`)
+
+      ctx.strokeStyle = '#f00'
+
+      /* ctx.strokeRect(
+        49 + m.actualBoundingBoxLeft,
+        99 - m.actualBoundingBoxAscent,
+        m.actualBoundingBoxRight - m.actualBoundingBoxLeft,
+        m.actualBoundingBoxAscent + m.actualBoundingBoxDescent
+      ) */
+
+      console.log(canvas.toDataURL())
+  }
+
+
+const openai = new OpenAI(MY_KEY);
+
+console.log(MY_KEY)
 
 const { BufferList } = require("bl");
 // https://www.npmjs.com/package/ipfs-http-client
@@ -381,7 +443,7 @@ function App(props) {
   const [downloading, setDownloading] = useState();
   const [ipfsContent, setIpfsContent] = useState();
 
-  const [summonerName, setSummonerName] = useState();
+  const [userQuery, setUserQuery] = useState();
   const [summonerContent, setSummonerContent] = useState();
 
   const [transferToAddresses, setTransferToAddresses] = useState({});
@@ -711,10 +773,10 @@ function App(props) {
           <Route path="/ConnectAccount">
             <div style={{ paddingTop: 32, width: 740, margin: "auto" }}>
               <Input
-                value={summonerName}
-                placeHolder="Enter your Summoner Name"
+                value={userQuery}
+                placeHolder="Enter your completion query to mint!"
                 onChange={e => {
-                  setSummonerName(e.target.value);
+                  setUserQuery(e.target.value);
                 }}
               />
             </div>
@@ -724,10 +786,55 @@ function App(props) {
               size="large"
               shape="round"
               type="primary"
-              onClick={async () => {
-                console.log("Requesting...", summonerName);
-                const result = await fetch(`https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-name/${summonerName}?api_key=RGAPI-0cd483ff-cccd-4cf7-b5ad-d069827286ab`)                
-              .then((result) => {
+              onClick={async () => {           
+                const gptInput = (userQuery)     
+                const gptResponse = await openai.complete({
+                  engine: 'davinci',
+                  prompt: `${userQuery}`.trimEnd(),
+                  maxTokens: 5,
+                  temperature: 0.5,
+                  topP: 1,
+                  presencePenalty: 0,
+                  frequencyPenalty: 0,
+                  bestOf: 1,
+                  n: 1,
+                  stream: false,
+                  stop: ['\n', "testing"]                               
+              });
+              if (gptResponse.data.choices[0].text) {
+                
+                //const userInput = `${userQuery}`.trimEnd();
+                const goodResponse = (gptResponse.data.choices[0].text);
+                drawImage(gptInput, goodResponse);
+                console.log(goodResponse);
+                return (goodResponse)
+              }
+              /* .then(                
+                ctx.font = '30px Impact',
+ctx.rotate(0.1),
+ctx.fillText(`${gptResponse.data.choices[0].text}`, 50, 100),
+
+// Draw line under text
+ctx.measureText(`${gptResponse.data.choices[0].text}`),
+ctx.strokeStyle = 'rgba(0,0,0,0.5)',
+ctx.beginPath(),
+ctx.lineTo(50, 102),
+ctx.lineTo(50 + ctx.measureText(`${gptResponse.data.choices[0].text}`), 102),
+ctx.stroke(),
+
+// Draw cat with lime helmet
+loadImage('examples/images/lime-cat.jpg').then((image) => {
+  ctx.drawImage(image, 50, 0, 70, 70)
+
+  console.log('<img src="' + canvas.toDataURL() + '" />')
+})) */     
+                  //drawImage(gptResponse),
+              //console.log(gptResponse.data.choices[0].text))
+              // trimming is working console.log(`${userQuery}`.trimEnd())
+                //console.log("Requesting...", userQuery)
+                //const result = await fetch(``)
+                //const result = await fetch(`https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-name/${summonerName}?api_key=RGAPI-26f51910-50d1-461c-947b-e83949e2a9b6`)
+              /* .then((result) => {
                 if (result.status >= 200 && result.status <= 299) {
                   return result.json();
                 } else {
@@ -738,14 +845,14 @@ function App(props) {
                 let accountID = result.id;
                 /* puid = new Puid();
                 console.log(puid.generate()); */
-                console.log(result.id)
+                /* console.log(result)
               }).catch((error) => {              
                 console.log(error);
-              });       
+              });        */
 }}
 
             >
-              Get Code
+              Submit
             </Button>
 
             <pre style={{ padding: 16, width: 500, margin: "auto", paddingBottom: 150 }}>{ipfsContent}</pre>
