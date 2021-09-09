@@ -11,6 +11,7 @@ import ReactJson from "react-json-view";
 import { BrowserRouter, Link, Route, Switch } from "react-router-dom";
 import StackGrid from "react-stack-grid";
 import Web3Modal from "web3modal";
+//import fetch from 'node-fetch';
 import "./App.css";
 import assets from "./assets.js";
 import { Account, Address, AddressInput, Contract, Faucet, GasGauge, Header, Ramp, ThemeSwitch } from "./components";
@@ -30,17 +31,27 @@ import {
 
 const fs = require('fs');
 var path = require('path');
-var Canvas = require('canvas');
+//const canvas = require('canvas');
 
 const OpenAI = require('openai-api');
 
-const { createCanvas, loadImage } = require('canvas')
+const { Canvas, createCanvas  } = require('canvas');
 //const canvas = createCanvas(200, 200)
 //const ctx = canvas.getContext('2d')
 
 // Load your key from an environment variable or secret management service
 // (do not include your key directly in your code)
 const MY_KEY = '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';
+
+const { BufferList } = require("bl");
+// https://www.npmjs.com/package/ipfs-http-client
+const ipfsAPI = require("ipfs-http-client");
+
+const ipfs = ipfsAPI({ host: "ipfs.infura.io", port: "5001", protocol: "https" });
+
+console.log("📦 Assets: ", assets);
+    
+    //allAssets[uploaded.path] = artwork[a]
 
 const drawImage = async (gptInput, ...goodResponse) => {
 
@@ -84,22 +95,37 @@ const drawImage = async (gptInput, ...goodResponse) => {
         m.actualBoundingBoxRight - m.actualBoundingBoxLeft,
         m.actualBoundingBoxAscent + m.actualBoundingBoxDescent
       ) */
+        //let imageURL = canvas.toDataURL()        
+        //let imageURL = canvas.toDataURL()
+        
+        /* var image = new Image();
+        image.src = `${imageURL}`; */      
+      
+        //console.log(base64img)
+        
+      //console.log(buffer)
+      
+      const base64img = canvas.toDataURL()
+      const url = base64img
 
-      console.log(canvas.toDataURL())
+      const base64Response = await fetch(`${url}`);
+      const blob = await base64Response.blob();
+
+      /* const response = await fetch(`${url}`, {
+        method: 'get',
+        body: 'blob',
+      }); */
+
+
+        //yeeeee we fucking uploaded that BITCHASS blob!
+        //now we need to upload the meta-data, and somehow deploy it 
+        const uploaded = await ipfs.add(blob)
+      console.log("ipfs:",uploaded.path)
   }
-
 
 const openai = new OpenAI(MY_KEY);
 
 console.log(MY_KEY)
-
-const { BufferList } = require("bl");
-// https://www.npmjs.com/package/ipfs-http-client
-const ipfsAPI = require("ipfs-http-client");
-
-const ipfs = ipfsAPI({ host: "ipfs.infura.io", port: "5001", protocol: "https" });
-
-console.log("📦 Assets: ", assets);
 
 /*
     Welcome to 🏗 scaffold-eth !
