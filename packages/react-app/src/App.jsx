@@ -53,6 +53,9 @@ console.log("📦 Assets: ", assets);
     
     //allAssets[uploaded.path] = artwork[a]
 
+  
+
+
 const drawImage = async (gptInput, ...goodResponse) => {
 
   const canvas = createCanvas(800, 600);
@@ -104,13 +107,14 @@ const drawImage = async (gptInput, ...goodResponse) => {
         //console.log(base64img)
         
       //console.log(buffer)
+
+      
       
       const base64img = canvas.toDataURL()
       const url = base64img
 
       const base64Response = await fetch(`${url}`);
       const blob = await base64Response.blob();
-
       /* const response = await fetch(`${url}`, {
         method: 'get',
         body: 'blob',
@@ -121,6 +125,9 @@ const drawImage = async (gptInput, ...goodResponse) => {
         //now we need to upload the meta-data, and somehow deploy it 
         const uploaded = await ipfs.add(blob)
       console.log("ipfs:",uploaded.path)
+      let ipfsPath = "https://ipfs.io/ipfs/" + uploaded.path
+      const tokenData = {"name": `${gptInput}`,"description":"He was #1!","external_url": `${ipfsPath}`,"image":"https://ipfs.io/ipfs/QmcrgeNrcgR1WeWuuU7TpjE8DwWXtDL76aRkqTpEc7WrBg","attributes":[{"trait_type":"BackgroundColor","value":"green"},{"trait_type":"Eyes","value":"googly"},{"trait_type":"Stamina","value":42}]}
+      console.log(tokenData)
   }
 
 const openai = new OpenAI(MY_KEY);
@@ -818,7 +825,7 @@ function App(props) {
                   engine: 'davinci',
                   prompt: `${userQuery}`.trimEnd(),
                   maxTokens: 5,
-                  temperature: 0.5,
+                  temperature: 0,
                   topP: 1,
                   presencePenalty: 0,
                   frequencyPenalty: 0,

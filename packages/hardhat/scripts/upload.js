@@ -14,12 +14,17 @@ const main = async () => {
   console.log("\n\n Loading artwork.json...\n");
   const artwork = JSON.parse(fs.readFileSync("../../artwork.json").toString())
 
+  //this loop uploads meta-data for each item in artwork 
+  //we can use this after we have appended our 100 items.
   for(let a in artwork){
     console.log("  Uploading "+artwork[a].name+"...")
     const stringJSON = JSON.stringify(artwork[a])
+    //Line below uploads meta-data
     const uploaded = await ipfs.add(stringJSON)
     console.log("   "+artwork[a].name+" ipfs:",uploaded.path)
+    //so allAssets = {}, then {[uploaded.path]}
     allAssets[uploaded.path] = artwork[a]
+    console.log(allAssets)
   }
 
   console.log("\n Injecting assets into the frontend...")
