@@ -41,7 +41,7 @@ const { Canvas, createCanvas, registerFont } = require('canvas');
 
 // Load your key from an environment variable or secret management service
 // (do not include your key directly in your code)
-const MY_KEY = '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';
+const MY_KEY = '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'; //this is an old key, no longer active.
 
 const { BufferList } = require("bl");
 // https://www.npmjs.com/package/ipfs-http-client
@@ -53,7 +53,29 @@ console.log("📦 Assets: ", assets);
     
     //allAssets[uploaded.path] = artwork[a]
 
+  //Let's make a function to emulate our strings
+
+  const generateStuff = () => {
+    //Selecting items by weight, objects with 'item' and 'weight'
+    //We will give weights to user, gpt, color?
+    /* function weighted_random(options) {
+      var i;
   
+      var weights = [];
+  
+      for (i = 0; i < options.length; i++)
+          weights[i] = options[i].weight + (weights[i - 1] || 0);
+      
+      var random = Math.random() * weights[weights.length - 1];
+      
+      for (i = 0; i < weights.length; i++)
+          if (weights[i] > random)
+              break;
+      
+      return options[i].item;
+  } */
+
+  }
 
 
 const drawImage = async (gptInput, randomTemp, ...goodResponse) => {
@@ -96,16 +118,16 @@ const drawImage = async (gptInput, randomTemp, ...goodResponse) => {
 
       //Need variables for 'users', placeholders for now.
       ctx.fillStyle = '#909090'
-      canvasTxt.drawText(ctx, 'user$:', 0, -50, 600, 200)
-      canvasTxt.drawText(ctx, 'elon-musk$:', 0, 25, 600, 200)
+      canvasTxt.drawText(ctx, 'user$:', 0, -40, 600, 200)
+      canvasTxt.drawText(ctx, 'elon-musk$:', 0, 35, 600, 200)
       //ctx.fillText('user$', 0, 25)
       //ctx.fillText('ice-nine$', 0, 200)
 
       ctx.fillStyle = '#39ff14'
       const txt = `${gptInput}`
       const txt2 = `${goodResponse}`
-      canvasTxt.drawText(ctx, txt, 0, -15, 600, 200)
-      canvasTxt.drawText(ctx, txt2, 0, 60, 600, 200)
+      canvasTxt.drawText(ctx, txt, 0, -5, 600, 200)
+      canvasTxt.drawText(ctx, txt2, 0, 70, 600, 200)
       /* ctx.fillText(`${gptInput}`, 100, 100)
       ctx.fillText(`${goodResponse}`, 155, 200) */
 
