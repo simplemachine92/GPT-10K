@@ -31,6 +31,7 @@ import {
 
 const fs = require('fs');
 var path = require('path');
+const canvasTxt = require('canvas-txt').default;
 
 const OpenAI = require('openai-api');
 
@@ -86,25 +87,38 @@ const drawImage = async (gptInput, randomTemp, ...goodResponse) => {
       ctx.lineWidth = 1
       //ctx.strokeStyle = '#FFFFFF'
 
-      //Need variables for 'users', placeholders for now.
-      ctx.fillStyle = '#909090' 
-      ctx.fillText('user$', 0, 100)
-      ctx.fillText('ice-nine$', 0, 200)
+      canvasTxt.font = 'menlo, serif'
+      canvasTxt.fontSize = 30
+      canvasTxt.align = 'left'
+      canvasTxt.lineHeight = 60
+      //canvasTxt.debug = true //shows debug info
+      //canvasTxt.justify = false
 
-      ctx.fillStyle = '#39ff14'      
-      ctx.fillText(`${gptInput}`, 100, 100)
-      ctx.fillText(`${goodResponse}`, 155, 200)
+      //Need variables for 'users', placeholders for now.
+      ctx.fillStyle = '#909090'
+      canvasTxt.drawText(ctx, 'user$:', 0, -50, 600, 200)
+      canvasTxt.drawText(ctx, 'elon-musk$:', 0, 25, 600, 200)
+      //ctx.fillText('user$', 0, 25)
+      //ctx.fillText('ice-nine$', 0, 200)
+
+      ctx.fillStyle = '#39ff14'
+      const txt = `${gptInput}`
+      const txt2 = `${goodResponse}`
+      canvasTxt.drawText(ctx, txt, 0, -15, 600, 200)
+      canvasTxt.drawText(ctx, txt2, 0, 60, 600, 200)
+      /* ctx.fillText(`${gptInput}`, 100, 100)
+      ctx.fillText(`${goodResponse}`, 155, 200) */
 
       var m = ctx.measureText(`${goodResponse}`)
 
       ctx.strokeStyle = '#f00'
 
-       ctx.strokeRect(
+       /* ctx.strokeRect(
         1 + m.actualBoundingBoxLeft,
         2 - m.actualBoundingBoxAscent,
         m.actualBoundingBoxRight - m.actualBoundingBoxLeft,
         m.actualBoundingBoxAscent + m.actualBoundingBoxDescent
-      ) 
+      )  */
         //let imageURL = canvas.toDataURL()        
         //let imageURL = canvas.toDataURL()
         
@@ -830,7 +844,7 @@ function App(props) {
                 var randomTemp = Math.random()
                 console.log(randomTemp)
                 let gptInput = (userQuery)
-                gptInput = gptInput.replace(/["“”@.,\/#!$%\^&\*+|?<>;:{}=\-_`~()]/g,"").trimEnd()
+                gptInput = gptInput.replace(/["“”‘’@.,\/#!$%\^&\*+|?<>;:{}=\-_`~()]/g,"").trimEnd()
                 if (gptInput == '') throw 'error'
                 const gptResponse = await openai.complete({
                   engine: 'davinci',
@@ -850,7 +864,7 @@ function App(props) {
                 //console.log(gptResponse)
                 //const userInput = `${userQuery}`.trimEnd();
                 let goodResponse = (gptResponse.data.choices[0].text)
-                goodResponse = goodResponse.replace(/["“”@.,\/#!$%\^&\*+|?<>;:{}=\-_`~()]/g,"")
+                goodResponse = goodResponse.replace(/["“”‘’@.,\/#!$%\^&\*+|?<>;:{}=\-_`~()]/g,"")
                 if (goodResponse != '') {
                 drawImage(gptInput, randomTemp, goodResponse);
                 console.log(goodResponse);   
