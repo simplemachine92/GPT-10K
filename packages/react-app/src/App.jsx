@@ -31,13 +31,12 @@ import {
 
 const fs = require('fs');
 var path = require('path');
-//const canvas = require('canvas');
 
 const OpenAI = require('openai-api');
 
-const { Canvas, createCanvas  } = require('canvas');
-//const canvas = createCanvas(200, 200)
-//const ctx = canvas.getContext('2d')
+const { Canvas, createCanvas, registerFont } = require('canvas');
+
+//const font = registerFont('/Users/cynthiapulley/Desktop/fonts/Inconsolata-VariableFont_wdth,wght.ttf', { family: 'Comic Sans' });
 
 // Load your key from an environment variable or secret management service
 // (do not include your key directly in your code)
@@ -56,12 +55,12 @@ console.log("📦 Assets: ", assets);
   
 
 
-const drawImage = async (gptInput, ...goodResponse) => {
-
+const drawImage = async (gptInput, randomTemp, ...goodResponse) => {
+  console.log(randomTemp)
   const canvas = createCanvas(800, 600);
   const ctx = canvas.getContext('2d');
   //const stream = canvas.createPNGStream()
-  ctx.globalAlpha = 0.2
+  //ctx.globalAlpha = 0.2
 
       /* ctx.strokeRect(0, 0, 200, 200)
       ctx.lineTo(0, 100)
@@ -73,31 +72,39 @@ const drawImage = async (gptInput, ...goodResponse) => {
       ctx.lineTo(100, 200)
       ctx.stroke() */
 
+      //Background
+      ctx.fillStyle = "black";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      //Font Alpha and Family
       ctx.globalAlpha = 1
-      ctx.font = 'normal 40px Impact, serif'
+      ctx.font = 'normal 30px menlo, serif'
 
       ctx.rotate(0)
       ctx.translate(20, -40)
 
       ctx.lineWidth = 1
-      ctx.strokeStyle = '#ddd'
-      ctx.strokeText(`${goodResponse}`, 300, 200)
-      ctx.strokeText(`${gptInput}`, 300, 100)
+      //ctx.strokeStyle = '#FFFFFF'
 
-      ctx.fillStyle = '#000'
-      ctx.fillText(`${goodResponse}`, 300, 200)
-      ctx.fillText(`${gptInput}`, 300, 100)
+      //Need variables for 'users', placeholders for now.
+      ctx.fillStyle = '#909090' 
+      ctx.fillText('user$', 0, 100)
+      ctx.fillText('ice-nine$', 0, 200)
+
+      ctx.fillStyle = '#39ff14'      
+      ctx.fillText(`${gptInput}`, 100, 100)
+      ctx.fillText(`${goodResponse}`, 155, 200)
 
       var m = ctx.measureText(`${goodResponse}`)
 
       ctx.strokeStyle = '#f00'
 
-      /* ctx.strokeRect(
-        49 + m.actualBoundingBoxLeft,
-        99 - m.actualBoundingBoxAscent,
+       ctx.strokeRect(
+        1 + m.actualBoundingBoxLeft,
+        2 - m.actualBoundingBoxAscent,
         m.actualBoundingBoxRight - m.actualBoundingBoxLeft,
         m.actualBoundingBoxAscent + m.actualBoundingBoxDescent
-      ) */
+      ) 
         //let imageURL = canvas.toDataURL()        
         //let imageURL = canvas.toDataURL()
         
@@ -819,29 +826,37 @@ function App(props) {
               size="large"
               shape="round"
               type="primary"
-              onClick={async () => {           
-                const gptInput = (userQuery)     
+              onClick={async () => {
+                var randomTemp = Math.random()
+                console.log(randomTemp)
+                let gptInput = (userQuery)
+                gptInput = gptInput.replace(/["“”@.,\/#!$%\^&\*+|?<>;:{}=\-_`~()]/g,"").trimEnd()
+                if (gptInput == '') throw 'error'
                 const gptResponse = await openai.complete({
                   engine: 'davinci',
-                  prompt: `${userQuery}`.trimEnd(),
+                  prompt: `${gptInput}`,
                   maxTokens: 5,
-                  temperature: 0,
+                  temperature: randomTemp,
                   topP: 1,
                   presencePenalty: 0,
                   frequencyPenalty: 0,
                   bestOf: 1,
                   n: 1,
                   stream: false,
-                  stop: ['\n', "testing"]                               
+                  stop: ['\n', "testing"]                    
               });
               if (gptResponse.data.choices[0].text) {
-                
+                console.log(gptResponse.data.choices[0].text)
+                //console.log(gptResponse)
                 //const userInput = `${userQuery}`.trimEnd();
-                const goodResponse = (gptResponse.data.choices[0].text);
-                drawImage(gptInput, goodResponse);
-                console.log(goodResponse);
+                let goodResponse = (gptResponse.data.choices[0].text)
+                goodResponse = goodResponse.replace(/["“”@.,\/#!$%\^&\*+|?<>;:{}=\-_`~()]/g,"")
+                if (goodResponse != '') {
+                drawImage(gptInput, randomTemp, goodResponse);
+                console.log(goodResponse);   
                 return (goodResponse)
-              }
+              } else {console.log('response was empty or only spec char')}
+            }
               /* .then(                
                 ctx.font = '30px Impact',
 ctx.rotate(0.1),
